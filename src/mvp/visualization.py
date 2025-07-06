@@ -133,7 +133,8 @@ def create_line_chart(
     width: int = 6,
     log_scale: bool = False,
     x_label: Optional[str] = None,
-    y_label: Optional[str] = None
+    y_label: Optional[str] = None,
+    linewidth: int = 2
 ):
     data_pd = data_frame.select(x_column_name, y_column_name).toPandas()
 
@@ -144,7 +145,7 @@ def create_line_chart(
         data_pd[x_column_name],
         data_pd[y_column_name],
         color="tab:blue",
-        linewidth=2
+        linewidth=linewidth
     )
 
     # Pontos
@@ -238,6 +239,8 @@ def create_histogram(
     width: int = 6,
     x_label: Optional[str] = None,
     y_label: str = "Frequência",
+    log_scale: bool = False,
+    stat = 'count'
 ):
     # Coleta os dados do DataFrame do Spark
     data_pd = data_frame.select(target_column_name).toPandas()
@@ -246,7 +249,7 @@ def create_histogram(
     palette = sns.color_palette("husl", len(data_pd[target_column_name].unique()))
 
     function_bins = bins if bins else "auto"
-    sns.histplot(data_pd[target_column_name], kde=True, bins=function_bins, binwidth=bin_size, palette=palette) # type: ignore
+    sns.histplot(data_pd[target_column_name], kde=True, bins=function_bins, binwidth=bin_size, palette=palette, stat=stat) # type: ignore
         
     funcion_x_label = x_label if x_label else target_column_name
     ax.set_xlabel(funcion_x_label)
@@ -254,6 +257,9 @@ def create_histogram(
 
     if not title:
         title = f"Distribuição de valores para '{funcion_x_label}'"
+    # Aplica escala logarítmica se necessário
+    if log_scale:
+        ax.set_yscale('log')
 
     ax.set_title(title)
     plt.tight_layout()
